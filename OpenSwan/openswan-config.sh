@@ -8,19 +8,17 @@ sudo yum install openswan -y 2>&1 /dev/null
 tun1=Tunnel1
 tun2=Tunnel2
 read -p "$tun1 on-prem PublicIP" onpremip
-read -p "$tun1 AWS PublicIP"	awsip
+read -p "$tun1 AWS PublicIP" awsip
 read -p	"$tun1 on-prem PrivateIP PREFIX" onpremprip
-read -p "$tun1 AWS PrivateIP PREFIX"	awsprip
+read -p "$tun1 AWS PrivateIP PREFIX" awsprip
 read -p "$tun1 type PREShARED KEY" presharedkey
 
 read -p "$tun2 on-prem PublicIP" onpremip2
-read -p "$tun2 AWS PublicIP"	awsip2
-read -p	"$tun2 on-prem PrivateIP PREFIX" onpremprip2
-read -p "$tun2 AWS PrivateIP PREFIX"	awsprip2
+read -p "$tun2 AWS PublicIP" awsip2
 read -p "$tun2 type PREShARED KEY" presharedkey2
 
 
-cat >> /etc/sysctl.conf <<EOL
+cat > /etc/sysctl.conf <<EOL
 net.ipv4.ip_forward = 1
 net.ipv4.conf.default.rp_filter = 0
 net.ipv4.conf.default.accept_source_route = 0
@@ -77,8 +75,8 @@ conn Tunnel1
 	auth=esp
 	keyingtries=%forever
 	keyexchange=ike
-	leftsubnet=$onpremprip2
-	rightsubnet=$awsprip2
+	leftsubnet=$onpremprip
+	rightsubnet=$awsprip
 	dpddelay=10
 	dpdtimeout=30
 	dpdaction=restart_by_peer
