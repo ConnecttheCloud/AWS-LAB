@@ -20,14 +20,14 @@ tun1=Tunnel1
 tun2=Tunnel2
 read -p "$tun1 on-prem PublicIP" onpremip
 read -p "$tun1 AWS PublicIP"	awsip
-read -p	"$tun1 on-prem PrivateIP" onpremprip
-read -p "$tun1 AWS PrivateIP"	awsprip
+read -p	"$tun1 on-prem PrivateIP PREFIX" onpremprip
+read -p "$tun1 AWS PrivateIP PREFIX"	awsprip
 read -p "$tun1 type PREShARED KEY" presharedkey
 
 read -p "$tun2 on-prem PublicIP" onpremip2
 read -p "$tun2 AWS PublicIP"	awsip2
-read -p	"$tun2 on-prem PrivateIP" onpremprip2
-read -p "$tun2 AWS PrivateIP"	awsprip2
+read -p	"$tun2 on-prem PrivateIP PREFIX" onpremprip2
+read -p "$tun2 AWS PrivateIP PREFIX"	awsprip2
 read -p "$tun2 type PREShARED KEY" presharedkey2
 
 
