@@ -5,17 +5,6 @@ sudo yum upgrade -y  2>&1 /dev/null
 
 sudo yum install openswan -y 2>&1 /dev/null
 
-cat >> /etc/sysctl.conf <<EOL
-net.ipv4.ip_forward = 1
-net.ipv4.conf.default.rp_filter = 0
-net.ipv4.conf.default.accept_source_route = 0
-EOL
-
-sudo sysctl -p &&
-
-mkdir -p /etc/ipsec.d/ && touch /etc/ipsec.d/aws.conf &
-mkdir -p /etc/ipsec.d/aws.secrets && touch /etc/ipsec.d/aws.secrets &
-
 tun1=Tunnel1
 tun2=Tunnel2
 read -p "$tun1 on-prem PublicIP" onpremip
@@ -29,6 +18,19 @@ read -p "$tun2 AWS PublicIP"	awsip2
 read -p	"$tun2 on-prem PrivateIP PREFIX" onpremprip2
 read -p "$tun2 AWS PrivateIP PREFIX"	awsprip2
 read -p "$tun2 type PREShARED KEY" presharedkey2
+
+
+cat >> /etc/sysctl.conf <<EOL
+net.ipv4.ip_forward = 1
+net.ipv4.conf.default.rp_filter = 0
+net.ipv4.conf.default.accept_source_route = 0
+EOL
+
+sudo sysctl -p 
+
+mkdir -p /etc/ipsec.d/ && touch /etc/ipsec.d/aws.conf &&
+mkdir -p /etc/ipsec.d/aws.secrets && touch /etc/ipsec.d/aws.secrets 
+
 
 
 
