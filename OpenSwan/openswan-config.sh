@@ -20,20 +20,23 @@ read -p "$tun2 type PREShARED KEY" presharedkey2
 
 cat > /etc/sysctl.conf <<EOL
 net.ipv4.ip_forward = 1
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.all.send_redirects = 0
 net.ipv4.conf.default.rp_filter = 0
-net.ipv4.conf.default.accept_source_route = 0
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv4.conf.default.send_redirects = 0
 EOL
 
 sudo sysctl -p 
 
 mkdir -p /etc/ipsec.d/ && touch /etc/ipsec.d/aws.conf &&
-mkdir -p /etc/ipsec.d/aws.secrets && touch /etc/ipsec.d/aws.secrets 
+touch /etc/ipsec.d/aws.secrets 
 
 
 
 
 
-cat >> /etc/ipsec.d/aws.conf<<EOL
+cat > /etc/ipsec.d/aws.conf<<EOL
 conn Tunnel1
 	authby=secret
 	auto=start
@@ -45,7 +48,6 @@ conn Tunnel1
 	keylife=1h
 	phase2alg=aes128-sha1;modp1024
 	ike=aes128-sha1;modp1024
-	auth=esp
 	keyingtries=%forever
 	keyexchange=ike
 	leftsubnet=$onpremprip
@@ -53,15 +55,16 @@ conn Tunnel1
 	dpddelay=10
 	dpdtimeout=30
 	dpdaction=restart_by_peer
+	overlapip=yes
 EOL
 
 
-cat >>/etc/ipsec.d/aws.secrets <<EOL
+cat >> /etc/ipsec.d/aws.secrets <<EOL
 $onpremip $awsip: PSK "$presharedkey"
 EOL
 
 cat >> /etc/ipsec.d/aws.conf<<EOL
-conn Tunnel1
+conn Tunnel2
 	authby=secret
 	auto=start
 	left=%defaultroute
@@ -72,7 +75,6 @@ conn Tunnel1
 	keylife=1h
 	phase2alg=aes128-sha1;modp1024
 	ike=aes128-sha1;modp1024
-	auth=esp
 	keyingtries=%forever
 	keyexchange=ike
 	leftsubnet=$onpremprip
@@ -80,6 +82,7 @@ conn Tunnel1
 	dpddelay=10
 	dpdtimeout=30
 	dpdaction=restart_by_peer
+	overlapip=yes
 EOL
 
 cat >>/etc/ipsec.d/aws.secrets <<EOL
@@ -90,6 +93,7 @@ EOL
 
 sudo systemctl start ipsec
 sudo systemctl enable ipsec
+sudo systemctl restart ipsec
 
 
 
