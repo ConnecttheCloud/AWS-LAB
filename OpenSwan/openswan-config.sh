@@ -1,9 +1,9 @@
 #/bin/bash
 
-sudo  yum update -y  2>&1 /dev/null
-sudo yum upgrade -y  2>&1 /dev/null
+sudo  yum update -y  2&>1 /dev/null
+sudo yum upgrade -y  2&>1 /dev/null
 
-sudo yum install openswan -y 2>&1 /dev/null
+sudo yum install openswan -y 2&>1 /dev/null
 
 tun1=Tunnel1
 tun2=Tunnel2
