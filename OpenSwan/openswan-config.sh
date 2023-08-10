@@ -18,7 +18,7 @@ read -p "$tun2 AWS PublicIP:" awsip2
 read -p "$tun2 type PREShARED KEY:" presharedkey2
 
 
-cat > /etc/sysctl.conf <<EOL
+sudo cat > /etc/sysctl.conf <<EOL
 net.ipv4.ip_forward = 1
 net.ipv4.conf.all.accept_redirects = 0
 net.ipv4.conf.all.send_redirects = 0
@@ -29,14 +29,14 @@ EOL
 
 sudo sysctl -p 
 
-mkdir -p /etc/ipsec.d/ && touch /etc/ipsec.d/aws.conf &&
-touch /etc/ipsec.d/aws.secrets 
+sudo mkdir -p /etc/ipsec.d/ && sudo touch /etc/ipsec.d/aws.conf &&
+sudo touch /etc/ipsec.d/aws.secrets 
 
 
 
 
 
-cat > /etc/ipsec.d/aws.conf<<EOL
+sudo cat > /etc/ipsec.d/aws.conf<<EOL
 conn Tunnel1
 	authby=secret
 	auto=start
@@ -59,11 +59,11 @@ conn Tunnel1
 EOL
 
 
-cat >> /etc/ipsec.d/aws.secrets <<EOL
+sudo cat >> /etc/ipsec.d/aws.secrets <<EOL
 $onpremip $awsip: PSK "$presharedkey"
 EOL
 
-cat >> /etc/ipsec.d/aws.conf<<EOL
+sudo cat >> /etc/ipsec.d/aws.conf<<EOL
 conn Tunnel2
 	authby=secret
 	auto=start
@@ -85,7 +85,7 @@ conn Tunnel2
 	overlapip=yes
 EOL
 
-cat >>/etc/ipsec.d/aws.secrets <<EOL
+sudo cat >>/etc/ipsec.d/aws.secrets <<EOL
 $onpremip2 $awsip2: PSK "$presharedkey2"
 EOL
 
