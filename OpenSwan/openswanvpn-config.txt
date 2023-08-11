@@ -1,0 +1,151 @@
+reference https://hello-world.kr/15
+
+
+--------------------------------------------------------------------------------------------------------------------
+IPSEC Tunnel #1
+--------------------------------------------------------------------------------------------------------------------
+
+This configuration assumes that you already have a default openswan installation in place on the Amazon Linux operating system (but may also work with other distros as well)
+
+1) Open /etc/sysctl.conf and ensure that its values match the following:
+   net.ipv4.ip_forward = 1
+   net.ipv4.conf.default.rp_filter = 0
+   net.ipv4.conf.default.accept_source_route = 0
+
+2) Apply the changes in step 1 by executing the command 'sysctl -p'
+
+3) Open /etc/ipsec.conf and look for the line below. Ensure that the # in front of the line has been removed, then save and exit the file.
+    #include /etc/ipsec.d/*.conf
+
+4) Create a new file at /etc/ipsec.d/aws.conf if doesn't already exist, and then open it. Append the following configuration to the end in the file:
+ #leftsubnet= is the local network behind your openswan server, and you will need to replace the <LOCAL NETWORK> below with this value (don't include the brackets). If you have multiple subnets, you can use 0.0.0.0/0 instead.
+ #rightsubnet= is the remote network on the other side of your VPN tunnel that you wish to have connectivity with, and you will need to replace <REMOTE NETWORK> with this value (don't include brackets).
+
+conn Tunnel1
+	authby=secret
+	auto=start
+	left=%defaultroute
+	leftid=54.188.65.202
+	right=18.162.137.221
+	type=tunnel
+	ikelifetime=8h
+	keylife=1h
+	phase2alg=aes128-sha1;modp1024
+	ike=aes128-sha1;modp1024
+	keyingtries=%forever
+	keyexchange=ike
+	leftsubnet=172.16.0.0/16
+	rightsubnet=10.0.0.0/16
+	dpddelay=10
+	dpdtimeout=30
+	dpdaction=restart_by_peer
+	overlapip=yes 
+
+5) Create a new file at /etc/ipsec.d/aws.secrets if it doesn't already exist, and append this line to the file (be mindful of the spacing!):
+54.188.65.202 18.162.137.221: PSK "Bjh_Y10c.sainTpOUU6f4Th434Lr7Uk8"
+
+
+--------------------------------------------------------------------------------------------------------------------
+IPSEC Tunnel #2
+--------------------------------------------------------------------------------------------------------------------
+
+This configuration assumes that you already have a default openswan installation in place on the Amazon Linux operating system (but may also work with other distros as well)
+
+1) Open /etc/sysctl.conf and ensure that its values match the following:
+   net.ipv4.ip_forward = 1
+   net.ipv4.conf.default.rp_filter = 0
+   net.ipv4.conf.default.accept_source_route = 0
+
+2) Apply the changes in step 1 by executing the command 'sysctl -p'
+
+3) Open /etc/ipsec.conf and look for the line below. Ensure that the # in front of the line has been removed, then save and exit the file.
+    #include /etc/ipsec.d/*.conf
+
+4) Create a new file at /etc/ipsec.d/aws.conf if doesn't already exist, and then open it. Append the following configuration to the end in the file:
+ #leftsubnet= is the local network behind your openswan server, and you will need to replace the <LOCAL NETWORK> below with this value (don't include the brackets). If you have multiple subnets, you can use 0.0.0.0/0 instead.
+ #rightsubnet= is the remote network on the other side of your VPN tunnel that you wish to have connectivity with, and you will need to replace <REMOTE NETWORK> with this value (don't include brackets).
+
+conn Tunnel2
+	authby=secret
+	auto=start
+	left=%defaultroute
+	leftid=54.188.65.202
+	right=18.162.159.18
+	type=tunnel
+	ikelifetime=8h
+	keylife=1h
+	phase2alg=aes128-sha1;modp1024
+	ike=aes128-sha1;modp1024
+	keyingtries=%forever
+	keyexchange=ike
+	leftsubnet=172.16.0.0/16
+	rightsubnet=10.0.0.0/16
+	dpddelay=10
+	dpdtimeout=30
+	dpdaction=restart_by_peer
+	overlapip=yes
+
+
+
+
+conn 2SVPN1                       # Tunnel 1
+        authby = secret
+        auto = start
+        left = %defaultroute
+        leftid = 15.164.118.208   # Public Customer Gateway IP Address
+        right = 15.164.153.107    # Public Virtual Private Gateway IP Address
+        type = tunnel
+        ikelifetime = 8h
+        keylife = 1h
+        phase2alg = aes128-sha1;modp1024
+        ike = aes128-sha1;modp1024
+        keyingtries = %forever
+        keyexchange = ike
+        leftsubnet =172.16.0.0/16  # Customer Side VPC CIDR
+        rightsubnet =10.0.0.0/16 # AWS Side VPC CIDR
+        dpddelay=10
+        dpdtimeout=30
+        dpdaction=restart_by_peer
+        overlapip=yes            
+
+
+conn 2SVPN2                        # Tunnel 2
+        authby = secret
+        auto = start
+        left = %defaultroute
+        leftid = 15.164.118.208    # Public Customer Gateway IP Address
+        right = 15.164.186.29      # Public Virtual Private Gateway IP Address
+        type = tunnel
+        ikelifetime = 8h
+        keylife = 1h
+        phase2alg = aes128-sha1;modp1024
+        ike = aes128-sha1;modp1024
+        keyingtries = %forever
+        keyexchange = ike
+        leftsubnet = 20.0.0.0/16
+        rightsubnet = 10.0.0.0/16
+        dpddelay = 10
+        dpdtimeout = 30
+        dpdaction = restart_by_peer
+        overlapip=yes
+
+5) Create a new file at /etc/ipsec.d/aws.secrets if it doesn't already exist, and append this line to the file (be mindful of the spacing!):
+54.188.65.202 18.162.159.18: PSK "QJtagpJ8hWl_U.AcBYX8ykAqJSvrmn42"
+
+
+--------------------------------------------------------------------------------------------------------------------
+(OPTIONAL CONFIG) Tunnel Healthcheck and Failover
+--------------------------------------------------------------------------------------------------------------------
+
+Openswan does not provide a built-in tunnel failover functionality. However, there are some third-party workarounds to this.
+
+=== DISCLAIMER ===
+Please be aware that AWS is in no way responsible for any of the use, management, maintenance, or potential issues you may encounter with the third-party workarounds. It is strongly recommended that you thoroughly test any failover solution prior to implementing it into your production environment
+
+
+
+  Additional Notes and Questions
+  - Amazon Virtual Private Cloud Getting Started Guide:
+        http://docs.amazonwebservices.com/AmazonVPC/latest/GettingStartedGuide
+  - Amazon Virtual Private Cloud Network Administrator Guide:
+        http://docs.amazonwebservices.com/AmazonVPC/latest/NetworkAdminGuide
